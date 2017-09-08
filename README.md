@@ -1,11 +1,14 @@
-# TimeUp
-A simple way to remember to restart your comuputer.
+<p align="center">
+  <a href="https://timeup.trowlink.net/">
+    <img src="https://timeup.trowlink.net/favicon.ico" width=64 height=64>
+  </a>
 
-# Speeds up your computer
-Restarting you computer regularly keeps your computer running more smoothly.
+  <h3 align="center">TimeUp</h3>
 
-# Run updates
-Restarting you computer regularly keeps your applications up to date.
-
-# Restart Reminders
-Reminders starting at 7 days then increasing in frequence to help remind you to restart.
+  <p align="center">
+    A simple way to remember to restart your comuputer.
+    <br>
+    <a href="https://timeup.trowlink.net/docs/"><strong>Explore TimeUp docs &raquo;</strong></a>
+    <br>
+  </p>
+</p>
