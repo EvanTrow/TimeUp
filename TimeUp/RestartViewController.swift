@@ -14,7 +14,7 @@ class RestartViewController: NSViewController, NSApplicationDelegate {
     
     // starts timer and sets delay to 2:30mins
     var timer = Timer()
-    var counter = 149
+    var counter = Preferences.restartTimer - 1
     
     // cancel restart btn
     @IBOutlet weak var restartCancelButton: NSButton!
@@ -46,7 +46,7 @@ class RestartViewController: NSViewController, NSApplicationDelegate {
         let daysUp = uptime / 86400
         
         // disables cancel btn if days are more than or equal to 21 days
-        if(daysUp>=21){
+        if(daysUp>=Preferences.restartCancelLimit){
             restartCancelButton.isEnabled = false
         }
     }
@@ -61,7 +61,7 @@ class RestartViewController: NSViewController, NSApplicationDelegate {
     // cancel btn and reset timer
     @IBAction func closeRestart(_ sender: NSButton) {
         timer.invalidate()
-        counter = 149
+        counter = Preferences.restartTimer - 1
         self.view.window?.close()
         
     }
@@ -86,7 +86,7 @@ class RestartViewController: NSViewController, NSApplicationDelegate {
         
         // set timer text if time is more that -1
         if(counter > -1){
-            timerString.stringValue = "If you do nothing, the computer will restart automatically in" + timer
+            timerString.stringValue = Preferences.restartMsg + timer
         }
         
         // counts down
@@ -97,18 +97,6 @@ class RestartViewController: NSViewController, NSApplicationDelegate {
             let source = "tell application \"System Events\" to restart"
             let script = NSAppleScript(source: source)
             script?.executeAndReturnError(nil)
-        }
-    }
-    func process() {
-        let runningApplications = NSWorkspace.shared().runningApplications
-        
-        for eachApplication in runningApplications {
-            if let applicationName = eachApplication.localizedName {
-                if(applicationName=="DRCInsight" || applicationName=="LockDown Browser"){
-                    print("Don't retart black is running")
-                }
-                //print("application is \(applicationName) & pid is \(eachApplication.processIdentifier)")
-            }
         }
     }
 }

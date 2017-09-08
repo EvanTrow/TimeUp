@@ -15,7 +15,7 @@ class ShutdownViewController: NSViewController, NSApplicationDelegate {
     
     // starts timer and sets delay to 2:30mins
     var timer = Timer()
-    var counter = 149
+    var counter = Preferences.shutdownTimer - 1
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,7 +41,7 @@ class ShutdownViewController: NSViewController, NSApplicationDelegate {
     // cancel btn and reset timer
     @IBAction func closeShutdown(_ sender: Any) {
         timer.invalidate()
-        counter = 149
+        counter = Preferences.shutdownTimer - 1
         self.view.window?.close()
     }
     
@@ -65,7 +65,7 @@ class ShutdownViewController: NSViewController, NSApplicationDelegate {
         
         // set timer text if time is more that -1
         if(counter > -1){
-            timerString.stringValue = "If you do nothing, the computer will shutdown automatically in" + timer
+            timerString.stringValue = Preferences.shutdownMsg + timer
         }
         
         // counts down

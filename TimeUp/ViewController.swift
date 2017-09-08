@@ -15,18 +15,19 @@ class ViewController: NSViewController, NSApplicationDelegate {
     var eventMonitor: EventMonitor?
     var AppDelegate: AppDelegate?
     var RestartViewController: RestartViewController?
-    
     // set menu bar text length
     let statusItem = NSStatusBar.system().statusItem(withLength: -1)
     
     @IBOutlet weak var versonLabel: NSTextField!
+    @IBOutlet weak var popoverMsg: NSTextField!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
         uptime()
         start()
+        
+        popoverMsg.stringValue = Preferences.popoverMessage
         
         //show version
         if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
@@ -58,27 +59,27 @@ class ViewController: NSViewController, NSApplicationDelegate {
     // start timers in background task
     func start(){
         DispatchQueue.global(qos: .background).async {
-            print("This is run on the background queue")
+            //print("This is run on the background queue")
             
             DispatchQueue.main.async {
-                print("This is run on the main queue, after the previous code in outer block")
+                //print("This is run on the main queue, after the previous code in outer block")
                 
                 self.uptime()
-                _ = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(self.uptime), userInfo: nil, repeats: true)
+                _ = Timer.scheduledTimer(timeInterval: TimeInterval(Preferences.timerInterval), target: self, selector: #selector(self.uptime), userInfo: nil, repeats: true)
                 
-                _ = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(self.uptimeSevenDays), userInfo: nil, repeats: true)
+                _ = Timer.scheduledTimer(timeInterval: TimeInterval(Preferences.timerInterval), target: self, selector: #selector(self.uptimeSevenDays), userInfo: nil, repeats: true)
                 self.uptimeSevenDays()
                 
-                _ = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(self.uptimeTenDays), userInfo: nil, repeats: true)
+                _ = Timer.scheduledTimer(timeInterval: TimeInterval(Preferences.timerInterval), target: self, selector: #selector(self.uptimeTenDays), userInfo: nil, repeats: true)
                 self.uptimeTenDays()
                 
-                _ = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(self.uptimeFourteenDays), userInfo: nil, repeats: true)
+                _ = Timer.scheduledTimer(timeInterval: TimeInterval(Preferences.timerInterval), target: self, selector: #selector(self.uptimeFourteenDays), userInfo: nil, repeats: true)
                 self.uptimeFourteenDays()
                 
-                _ = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(self.uptimeTwentyOneDays), userInfo: nil, repeats: true)
+                _ = Timer.scheduledTimer(timeInterval: TimeInterval(Preferences.timerInterval), target: self, selector: #selector(self.uptimeTwentyOneDays), userInfo: nil, repeats: true)
                 self.uptimeTwentyOneDays()
                 
-                _ = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(self.databaseUpdate), userInfo: nil, repeats: true)
+                _ = Timer.scheduledTimer(timeInterval: TimeInterval(Preferences.timerInterval), target: self, selector: #selector(self.databaseUpdate), userInfo: nil, repeats: true)
                 self.databaseUpdate()
             }
         }
@@ -89,6 +90,12 @@ class ViewController: NSViewController, NSApplicationDelegate {
     
     // show time up in popover
     func uptime(){
+        
+        //debug -------------------------------------------------------------------
+        //print(Preferences.databaseUploadEnabled)
+        //restartProcessCheck(array: Preferences.blacklistApps)
+        
+        
         let uptime = getUpTime(no1: 0)
         // convert sec to day, hrs, mins
         let days = String((uptime / 86400)) + " days "
@@ -99,19 +106,18 @@ class ViewController: NSViewController, NSApplicationDelegate {
         timeOut.stringValue = days + hours + minutes
     }
     
-    
     //more than 7 days every 6 hrs
     static var lastCheckSevenDays = NSDate() //get time when app started for timer
     func uptimeSevenDays() {
         let elapsedTime = NSDate().timeIntervalSince(ViewController.lastCheckSevenDays as Date)
         
-        if (elapsedTime>=21600){ // if time is more that 6hrs show notification
+        if (elapsedTime>=Double(Preferences.firstInterval)){ // if time is more that 6hrs show notification
             ViewController.lastCheckSevenDays = NSDate() // record time again
             //convert seconds to days
             let daysSeven = getUpTime(no1: 0) / 86400
             // if days over limit show restart
-            if (daysSeven >= 7 && daysSeven < 10){
-                showRestart()
+            if (daysSeven >= Preferences.firstLow && Preferences.firstHigh < 10){
+                restartProcessCheck(array: Preferences.blacklistApps)
             }
         }
         
@@ -120,13 +126,14 @@ class ViewController: NSViewController, NSApplicationDelegate {
     static var lastCheckTenDays = NSDate() //get time when app started for timer
     func uptimeTenDays() {
         let elapsedTime = NSDate().timeIntervalSince(ViewController.lastCheckTenDays as Date)
-        if (elapsedTime>=10800){ // if time is more that 6hrs show notification
+        
+        if (elapsedTime>=Double(Preferences.secondInterval)){ // if time is more that 6hrs show notification
             ViewController.lastCheckTenDays = NSDate() // record time again
             //convert seconds to days
             let daysSeven = getUpTime(no1: 0) / 86400
             // if days over limit show restart
-            if (daysSeven >= 10 && daysSeven < 14){
-                showRestart()
+            if (daysSeven >= Preferences.secondLow && daysSeven < Preferences.secondHigh){
+                restartProcessCheck(array: Preferences.blacklistApps)
             }
         }
         
@@ -136,13 +143,13 @@ class ViewController: NSViewController, NSApplicationDelegate {
     func uptimeFourteenDays() {
         let elapsedTime = NSDate().timeIntervalSince(ViewController.lastCheckFourteenDays as Date)
         
-        if (elapsedTime>=3600){ // if time is more that 6hrs show notification
+        if (elapsedTime>=Double(Preferences.thirdInterval)){ // if time is more that 6hrs show notification
             ViewController.lastCheckFourteenDays = NSDate() // record time again
             //convert seconds to days
             let daysSeven = getUpTime(no1: 0) / 86400
             // if days over limit show restart
-            if (daysSeven >= 14 && daysSeven < 20){
-                showRestart()
+            if (daysSeven >= Preferences.thirdLow && daysSeven < Preferences.thirdHigh){
+                restartProcessCheck(array: Preferences.blacklistApps)
             }
         }
         
@@ -152,15 +159,37 @@ class ViewController: NSViewController, NSApplicationDelegate {
     static var lastCheckTwentyOneDays = NSDate() //get time when app started for timer
     func uptimeTwentyOneDays() {
         let elapsedTime = NSDate().timeIntervalSince(ViewController.lastCheckTwentyOneDays as Date)
-        if (elapsedTime>=300){ // if time is more that 6hrs show notification
+        
+        if (elapsedTime>=Double(Preferences.forthInterval)){ // if time is more that 6hrs show notification
             ViewController.lastCheckTwentyOneDays = NSDate() // record time again
             //convert seconds to days
             let daysSeven = getUpTime(no1: 0) / 86400
-            print(daysSeven)
             // if days over limit show restart
-            if (daysSeven >= 21){
-                showRestart()
+            if (daysSeven >= Preferences.forthHigh){
+                restartProcessCheck(array: Preferences.blacklistApps)
             }
+        }
+    }
+    
+    func restartProcessCheck(array: Array<String>) {
+        
+        var restartCheck = true
+        
+        let runningApplications = NSWorkspace.shared().runningApplications
+        
+        for eachApplication in runningApplications {
+            if let applicationName = eachApplication.localizedName {
+                
+                if array.contains(applicationName) {
+                    //print(applicationName+" is open don't restart")
+                    restartCheck = false
+                }
+                //print("application is \(applicationName) & pid is \(eachApplication.processIdentifier)")
+            }
+        }
+        //print(restartCheck)
+        if(restartCheck){
+            showRestart()
         }
     }
     
@@ -181,14 +210,16 @@ class ViewController: NSViewController, NSApplicationDelegate {
     // sends computer timeup to firebase realtime database for analitics/tracking - https://firebase.google.com
     static var lastCheckDatabaseUpdate = NSDate() //get time when app started for timer
     func databaseUpdate(){
-        let elapsedTime = NSDate().timeIntervalSince(ViewController.lastCheckDatabaseUpdate as Date)
-        if (elapsedTime>=7200){ // if time is more that 2hrs update database days
-            ViewController.lastCheckTwentyOneDays = NSDate() // record time again
-            let currentHost = Host.current().localizedName ?? ""
-            let timeNow = String(Date().timeIntervalSince1970)
-            let data = "{\"timeup\": \""+String(getUpTime(no1: 0))+"\",\"lastUpdate\": \""+timeNow+"\"}"
-            _ = shell(launchPath: "/usr/bin/curl", arguments: ["curl", "-X", "PUT" ,"-d" ,data , "https://timeup-9ddea.firebaseio.com/computers/"+currentHost+".json"]) // runs a curl put command to update database
-            //print(output)
+        if(Preferences.databaseUploadEnabled==true){
+            let elapsedTime = NSDate().timeIntervalSince(ViewController.lastCheckDatabaseUpdate as Date)
+            if (elapsedTime>=Double(Preferences.databaseUploadInterval)){ // if time is more that 2hrs update database days
+                ViewController.lastCheckTwentyOneDays = NSDate() // record time again
+                let currentHost = Host.current().localizedName ?? ""
+                let timeNow = String(Date().timeIntervalSince1970)
+                let data = "{\"timeup\": \""+String(getUpTime(no1: 0))+"\",\"lastUpdate\": \""+timeNow+"\"}"
+                _ = shell(launchPath: "/usr/bin/curl", arguments: ["curl", "-X", "PUT" ,"-d" ,data , "https://timeup-9ddea.firebaseio.com/computers/"+currentHost+".json"]) // runs a curl put command to update database
+                //print(output)
+            }
         }
     }
     
