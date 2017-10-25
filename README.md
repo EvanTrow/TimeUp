@@ -1,6 +1,6 @@
 <p align="center">
   <a href="http://timeup.xyz/">
-    <img src="http://timeup.xyz/favicon.ic" width=64 height=64>
+    <img src="http://timeup.xyz/favicon.ico" width=64 height=64>
   </a>
 
   <h3 align="center">TimeUp</h3>
