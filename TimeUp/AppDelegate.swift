@@ -11,30 +11,32 @@ import Cocoa
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     
-    // setup popover
-    let statusItem = NSStatusBar.system().statusItem(withLength: -1)
+    // setup popover / view
+    let statusItem = NSStatusBar.system.statusItem(withLength: -1)
     let popover = NSPopover()
     var eventMonitor: EventMonitor?
     var ViewController: ViewController?
     
-    // setup icon on launch
+    // setup
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         
+        // sets defualt prefences
         SetPrefs()
 
         // setup menu icon
         if let button = statusItem.button {
-            button.image = NSImage(named: "StatusBarButtonImageGreen")
+            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageGreen"))
             button.imagePosition = .imageLeft
-            button.title = "0" + Preferences.daysUnit
+            button.title = "0" + UserDefaults.standard.string(forKey: "daysUnit")!
             button.action = #selector(AppDelegate.togglePopover(_:))
         }
         
-        let mainViewController = NSStoryboard(name: "Main", bundle: nil).instantiateController(withIdentifier: "ViewControllerId") as! ViewController
+        // setup view controller
+        let mainViewController = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil).instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "ViewControllerId")) as! ViewController
         
         // setup popover
         popover.contentViewController = mainViewController
-        eventMonitor = EventMonitor(mask: [.leftMouseDown, .rightMouseDown]) { [unowned self] event in
+        eventMonitor = EventMonitor(mask: [NSEvent.EventTypeMask.leftMouseDown, NSEvent.EventTypeMask.rightMouseDown]) { [unowned self] event in
             if self.popover.isShown {
                 self.closePopover(event)
             }
@@ -47,11 +49,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // timer for icon and notifications
         uptimeIcon()
-        _ = Timer.scheduledTimer(timeInterval: TimeInterval(Preferences.timerInterval), target: self, selector: #selector(AppDelegate.uptimeIcon), userInfo: nil, repeats: true)
+        _ = Timer.scheduledTimer(timeInterval: TimeInterval(UserDefaults.standard.integer(forKey: "timerInterval")), target: self, selector: #selector(AppDelegate.uptimeIcon), userInfo: nil, repeats: true)
     }
     
     // toggles popver open/close
-    func togglePopover(_ sender: AnyObject?) {
+    @objc func togglePopover(_ sender: AnyObject?) {
         if popover.isShown {
             closePopover(sender)
         } else {
@@ -74,24 +76,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // set uptime icon number of days
-    func uptimeIcon(){
+    @objc func uptimeIcon(){
         
         // get computer uptime
         let uptime = getUpTime(no1: 0)
         
         // convert sec to days
-        let days = String(uptime / 86400) + Preferences.daysUnit
+        let days = String(uptime / 86400) + UserDefaults.standard.string(forKey: "daysUnit")!
         let daysIcon = uptime / 86400
         
         // set menu icon text
         statusItem.title = days
         
-        // set menu icon picture by amount of days
-        if (daysIcon >= Preferences.orangeIconDays) {
-            statusItem.image = NSImage(named: "StatusBarButtonImageOrange")
+        // set menu icon color by amount of days
+        if (daysIcon >= UserDefaults.standard.integer(forKey: "orangeIconDays")) {
+            statusItem.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageOrange"))
         }
-        if (daysIcon >= Preferences.redIconDays) {
-            statusItem.image = NSImage(named: "StatusBarButtonImageRed")
+        if (daysIcon >= UserDefaults.standard.integer(forKey: "redIconDays")) {
+            statusItem.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageRed"))
         }
     }
     
@@ -109,10 +111,49 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return uptime
     }
     
+    // set defualt prefs
     func SetPrefs(){
-        //let path = "/Library/Preferences/net.trowlink.TimeUp.plist"
-        let path = "/Library/Preferences/net.trowlink.TimeUp.plist"
+        if(UserDefaults.standard.object(forKey: "timerInterval") != nil){
+            UserDefaults.standard.set(5, forKey: "timerInterval")
+            
+            UserDefaults.standard.set(7, forKey: "firstLow")
+            UserDefaults.standard.set(10, forKey: "firstHigh")
+            UserDefaults.standard.set(21600, forKey: "firstInterval")
+            
+            UserDefaults.standard.set(10, forKey: "secondLow")
+            UserDefaults.standard.set(14, forKey: "secondHigh")
+            UserDefaults.standard.set(10800, forKey: "secondInterval")
+            
+            UserDefaults.standard.set(14, forKey: "thirdLow")
+            UserDefaults.standard.set(21, forKey: "thirdHigh")
+            UserDefaults.standard.set(3600, forKey: "thirdInterval")
+            
+            UserDefaults.standard.set(21, forKey: "forthHigh")
+            UserDefaults.standard.set(300, forKey: "forthInterval")
+            
+            UserDefaults.standard.set(7200, forKey: "databaseUploadInterval")
+            UserDefaults.standard.set(true, forKey: "databaseUploadEnabled")
+            UserDefaults.standard.set("https://timeup-2ee0a.firebaseio.com/computers/", forKey: "databaseURL")
+            UserDefaults.standard.set("timeup", forKey: "databaseDomain")
+            
+            UserDefaults.standard.set(150, forKey: "restartTimer")
+            UserDefaults.standard.set(150, forKey: "shutdownTimer")
+            UserDefaults.standard.set(21, forKey: "restartCancelLimit")
+            
+            UserDefaults.standard.set(5, forKey: "orangeIconDays")
+            UserDefaults.standard.set(10, forKey: "redIconDays")
+            UserDefaults.standard.set("d", forKey: "daysUnit")
+            
+            UserDefaults.standard.set("If you do nothing, the computer will restart automatically in", forKey: "restartMsg")
+            UserDefaults.standard.set("If you do nothing, the computer will shutdown automatically in", forKey: "shutdownMsg")
+            UserDefaults.standard.set("Restarting your computer regularly keeps your applications up to date and your computer running smoothly.", forKey: "popoverMessage")
+            
+            UserDefaults.standard.set([String](), forKey: "blacklistApps")
+        }
 
+        // file path for plist
+        let path = "/Library/Preferences/com.trowlink.TimeUp.plist"
+        //let path = "/Users/trowbrev18/Desktop/com.trowlink.TimeUp.plist"
         
         //var pathToApplication: String = Bundle.main.bundlePath
 
@@ -123,44 +164,62 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let dictRoot = NSDictionary(contentsOfFile: path)
             if let dict = dictRoot {
                 //print(dict)
-                Preferences.blacklistApps = dict["blacklistApps"] as! Array<String>
+                UserDefaults.standard.set(dict["timerInterval"] as! Int, forKey: "timerInterval")
                 
-                Preferences.firstLow = dict["firstLow"] as! Int
-                Preferences.firstHigh = dict["firstHigh"] as! Int
-                Preferences.firstInterval = dict["firstInterval"] as! Int
+                UserDefaults.standard.set(dict["firstLow"] as! Int, forKey: "firstLow")
+                UserDefaults.standard.set(dict["firstHigh"] as! Int, forKey: "firstHigh")
+                UserDefaults.standard.set(dict["firstInterval"] as! Int, forKey: "firstInterval")
                 
-                Preferences.secondLow = dict["secondLow"] as! Int
-                Preferences.secondHigh = dict["secondHigh"] as! Int
-                Preferences.secondInterval = dict["secondInterval"] as! Int
+                UserDefaults.standard.set(dict["secondLow"] as! Int, forKey: "secondLow")
+                UserDefaults.standard.set(dict["secondHigh"] as! Int, forKey: "secondHigh")
+                UserDefaults.standard.set(dict["secondInterval"] as! Int, forKey: "secondInterval")
                 
-                Preferences.thirdLow = dict["thirdLow"] as! Int
-                Preferences.thirdHigh = dict["thirdHigh"] as! Int
-                Preferences.thirdInterval = dict["thirdInterval"] as! Int
+                UserDefaults.standard.set(dict["thirdLow"] as! Int, forKey: "thirdLow")
+                UserDefaults.standard.set(dict["thirdHigh"] as! Int, forKey: "thirdHigh")
+                UserDefaults.standard.set(dict["thirdInterval"] as! Int, forKey: "thirdInterval")
                 
-                Preferences.forthHigh = dict["forthHigh"] as! Int
-                Preferences.forthInterval = dict["forthInterval"] as! Int
+                UserDefaults.standard.set(dict["forthHigh"] as! Int, forKey: "forthHigh")
+                UserDefaults.standard.set(dict["forthInterval"] as! Int, forKey: "forthInterval")
+                    
+                UserDefaults.standard.set(dict["databaseUploadInterval"] as! Int, forKey: "databaseUploadInterval")
+                UserDefaults.standard.set(dict["databaseUploadEnabled"] as! Bool, forKey: "databaseUploadEnabled")
+                UserDefaults.standard.set(dict["databaseURL"] as! String, forKey: "databaseURL")
+                UserDefaults.standard.set(dict["databaseDomain"] as! String, forKey: "databaseDomain")
                 
-                Preferences.timerInterval = dict["timerInterval"] as! Int
-                Preferences.databaseUploadInterval = dict["databaseUploadInterval"] as! Int
-                Preferences.databaseUploadEnabled = dict["databaseUploadEnabled"] as! Bool
-                Preferences.restartTimer = dict["restartTimer"] as! Int
-                Preferences.shutdownTimer = dict["shutdownTimer"] as! Int
-                Preferences.orangeIconDays = dict["orangeIconDays"] as! Int
-                Preferences.redIconDays = dict["redIconDays"] as! Int
-                Preferences.daysUnit = dict["daysUnit"] as! String
-                Preferences.restartCancelLimit = dict["restartCancelLimit"] as! Int
-                Preferences.restartMsg = dict["restartMsg"] as! String
-                Preferences.shutdownMsg = dict["shutdownMsg"] as! String
-                Preferences.popoverMessage = dict["popoverMsg"] as! String
+                UserDefaults.standard.set(dict["restartTimer"] as! Int, forKey: "restartTimer")
+                UserDefaults.standard.set(dict["shutdownTimer"] as! Int, forKey: "shutdownTimer")
+                UserDefaults.standard.set(dict["restartCancelLimit"] as! Int, forKey: "restartCancelLimit")
 
+                UserDefaults.standard.set(dict["orangeIconDays"] as! Int, forKey: "orangeIconDays")
+                UserDefaults.standard.set(dict["redIconDays"] as! Int, forKey: "redIconDays")
+                UserDefaults.standard.set(dict["daysUnit"] as! String, forKey: "daysUnit")
+
+                UserDefaults.standard.set(dict["restartMsg"] as! String, forKey: "restartMsg")
+                UserDefaults.standard.set(dict["shutdownMsg"] as! String, forKey: "shutdownMsg")
+                UserDefaults.standard.set(dict["popoverMsg"] as! String, forKey: "popoverMsg")
+                
+                UserDefaults.standard.set(dict["blacklistApps"] as! Array<String>, forKey: "blacklistApps")
             }
         } else {
-            let alert = NSAlert()
-            alert.messageText = "Error"
-            alert.informativeText = "TimeUp configuration not found at: " + path + " TimeUp will use default configuration."
-            alert.alertStyle = NSAlertStyle.warning
-            alert.addButton(withTitle: "OK")
-            alert.runModal()
+            // show error message if no plist found in path specified above
+            print("debug: plist error - "+String(UserDefaults.standard.bool(forKey: "dontShowNotFoundError")))
+            if(UserDefaults.standard.bool(forKey: "dontShowNotFoundError") == false) {
+                let alert = NSAlert()
+                alert.messageText = "Error"
+                alert.informativeText = "TimeUp configuration not found at: " + path + " TimeUp will use default configuration."
+                alert.addButton(withTitle: "OK")
+                alert.addButton(withTitle: "Don't show this message again.")
+                let result = alert.runModal()
+                switch(result) {
+                case NSApplication.ModalResponse.alertFirstButtonReturn:
+                    print("OK")
+                case NSApplication.ModalResponse.alertSecondButtonReturn:
+                    UserDefaults.standard.set(true, forKey: "dontShowNotFoundError")
+                    print("don't show again")
+                default:
+                    break
+                }
+            }
         }
     }
 }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12121"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13771"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -669,6 +669,9 @@
                         <windowCollectionBehavior key="collectionBehavior" fullScreenNone="YES" fullScreenDisallowsTiling="YES"/>
                         <rect key="contentRect" x="1595" y="300" width="275" height="170"/>
                         <rect key="screenRect" x="1366" y="-132" width="1600" height="877"/>
+                        <connections>
+                            <outlet property="delegate" destination="w3h-9A-Eoa" id="33V-ZN-zhL"/>
+                        </connections>
                     </window>
                     <connections>
                         <segue destination="Me8-Cz-Vlp" kind="relationship" relationship="window.shadowedContentViewController" id="qgw-JL-dkM"/>
@@ -676,7 +679,7 @@
                 </windowController>
                 <customObject id="Y2W-l2-FCr" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="149" y="498"/>
+            <point key="canvasLocation" x="174" y="499"/>
         </scene>
         <!--Shutdown View Controller-->
         <scene sceneID="k9O-MK-gRh">
@@ -684,9 +687,9 @@
                 <viewController storyboardIdentifier="shutdownViewController" showSeguePresentationStyle="single" id="Me8-Cz-Vlp" customClass="ShutdownViewController" customModule="TimeUp" sceneMemberID="viewController">
                     <view key="view" id="iE4-6m-xtg">
                         <rect key="frame" x="0.0" y="0.0" width="419" height="130"/>
-                        <autoresizingMask key="autoresizingMask"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jbv-eT-WBX">
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jbv-eT-WBX">
                                 <rect key="frame" x="123" y="91" width="278" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Shutdown your computer." id="GXE-Wh-eWq">
@@ -695,7 +698,7 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mCh-QR-pwT">
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mCh-QR-pwT">
                                 <rect key="frame" x="123" y="49" width="278" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="If you do nothing, the computer will shutdown automatically in 2:30" id="kOJ-2z-PoA">
@@ -730,7 +733,7 @@ Gw
                                 </connections>
                             </button>
                             <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2J5-7m-a5V">
-                                <rect key="frame" x="20" y="24" width="85" height="83"/>
+                                <rect key="frame" x="10" y="20" width="100" height="100"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="TimeUpIcon" id="pLY-Hd-MYt"/>
                             </imageView>
@@ -742,63 +745,116 @@ Gw
                 </viewController>
                 <customObject id="s74-Fi-o7c" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-238.5" y="179"/>
+            <point key="canvasLocation" x="618" y="536"/>
         </scene>
-        <!--View Controller-->
+        <!--Window Controller-->
+        <scene sceneID="2Hm-aL-N81">
+            <objects>
+                <windowController storyboardIdentifier="veve" showSeguePresentationStyle="single" id="PjN-HW-lIf" sceneMemberID="viewController">
+                    <window key="window" title="About" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="T9c-QQ-Rag">
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
+                        <rect key="contentRect" x="63" y="470" width="251" height="175"/>
+                        <rect key="screenRect" x="0.0" y="0.0" width="1366" height="745"/>
+                        <connections>
+                            <outlet property="delegate" destination="PjN-HW-lIf" id="6Yh-NB-hKG"/>
+                        </connections>
+                    </window>
+                    <connections>
+                        <segue destination="SO0-tt-Ggp" kind="relationship" relationship="window.shadowedContentViewController" id="MQZ-zL-XNp"/>
+                    </connections>
+                </windowController>
+                <customObject id="28H-Fe-qKp" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-250" y="237"/>
+        </scene>
+        <!--About TimeUp-->
+        <scene sceneID="FFY-cY-B9V">
+            <objects>
+                <viewController title="About TimeUp" id="SO0-tt-Ggp" sceneMemberID="viewController">
+                    <view key="view" id="Bcc-AS-btx">
+                        <rect key="frame" x="0.0" y="0.0" width="250" height="270"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lu6-X9-eeJ">
+                                <rect key="frame" x="61" y="122" width="128" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="TimeUpIcon" id="bAA-QJ-gxz"/>
+                            </imageView>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ufa-ke-TJp">
+                                <rect key="frame" x="75" y="82" width="100" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="TimeUp" id="Q11-Go-TMW">
+                                    <font key="font" metaFont="system" size="22"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gbg-Cd-hxX">
+                                <rect key="frame" x="52" y="57" width="146" height="17"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Version 1.4.2" id="dQo-eA-yZI">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <box verticalHuggingPriority="750" fixedFrame="YES" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="5mb-Z3-8gU">
+                                <rect key="frame" x="20" y="46" width="210" height="5"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            </box>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3fK-py-o9Y">
+                                <rect key="frame" x="28" y="20" width="194" height="20"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="TimeUp © 2018 TrowLink" id="2Q4-jG-WHm">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                        </subviews>
+                    </view>
+                </viewController>
+                <customObject id="t01-vg-wWA" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-135" y="588"/>
+        </scene>
+        <!--TimeUp-->
         <scene sceneID="sd7-8t-qVg">
             <objects>
-                <viewController storyboardIdentifier="ViewControllerId" id="VE0-GH-zIX" customClass="ViewController" customModule="TimeUp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="TimeUp" storyboardIdentifier="ViewControllerId" showSeguePresentationStyle="single" id="VE0-GH-zIX" customClass="ViewController" customModule="TimeUp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="Alm-ng-1IR">
                         <rect key="frame" x="0.0" y="0.0" width="303" height="218"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mwg-gH-LSD">
-                                <rect key="frame" x="61" y="174" width="182" height="24"/>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mwg-gH-LSD">
+                                <rect key="frame" x="111" y="174" width="83" height="24"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Computer Timeup" id="HrT-P3-uGE">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="TimeUp" id="HrT-P3-uGE">
                                     <font key="font" metaFont="systemBold" size="20"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WIt-gd-k2k">
-                                <rect key="frame" x="18" y="109" width="267" height="57"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="popoverMessage" id="SWD-Al-xsr">
-                                    <font key="font" metaFont="system" size="15"/>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b0Z-hq-o4v">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="b0Z-hq-o4v">
                                 <rect key="frame" x="18" y="59" width="267" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="timeOut" id="i26-Vz-Rs8">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jRp-GZ-hcA">
-                                <rect key="frame" x="124" y="84" width="57" height="17"/>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jRp-GZ-hcA">
+                                <rect key="frame" x="124" y="84" width="59" height="17"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Timeup:" id="W1G-JE-CNF">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="TimeUp:" id="W1G-JE-CNF">
                                     <font key="font" metaFont="systemBold"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OK5-xk-IL3">
-                                <rect key="frame" x="-2" y="0.0" width="287" height="17"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="information" id="1jv-hb-5Sc">
-                                    <font key="font" metaFont="system"/>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tm1-AE-AdF">
-                                <rect key="frame" x="152" y="13" width="115" height="32"/>
+                                <rect key="frame" x="152" y="18" width="115" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Shutdown" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="04I-se-l0u">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -812,18 +868,19 @@ Gw
                                 </connections>
                             </button>
                             <button horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IIj-ZD-Win">
-                                <rect key="frame" x="282" y="-3" width="25" height="25"/>
+                                <rect key="frame" x="281" y="195" width="25" height="25"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="help" bezelStyle="helpButton" imagePosition="left" alignment="left" controlSize="mini" borderStyle="border" inset="2" id="CwF-yI-Oo3">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="miniSystem"/>
                                 </buttonCell>
                                 <connections>
-                                    <action selector="showInfo:" target="VE0-GH-zIX" id="TPa-9e-8Z5"/>
+                                    <action selector="showTimeUpAbout:" target="VE0-GH-zIX" id="2fP-h0-gXG"/>
+                                    <segue destination="PjN-HW-lIf" kind="show" id="2DK-2L-lhD"/>
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gQc-eb-2oM">
-                                <rect key="frame" x="37" y="13" width="115" height="32"/>
+                                <rect key="frame" x="37" y="18" width="115" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Restart" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ASs-xr-3uc">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -834,13 +891,27 @@ Gw
                                     <segue destination="2OA-do-y1F" kind="show" identifier="restartSegue" id="pjG-VZ-hqa"/>
                                 </connections>
                             </button>
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WIt-gd-k2k">
+                                <rect key="frame" x="18" y="109" width="267" height="57"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="popoverMessage" id="SWD-Al-xsr">
+                                    <font key="font" metaFont="system" size="15"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <levelIndicator verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vRg-Gf-jAJ">
+                                <rect key="frame" x="0.0" y="0.0" width="303" height="16"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <levelIndicatorCell key="cell" alignment="left" maxValue="100" warningValue="23.809000000000001" criticalValue="47.619" levelIndicatorStyle="continuousCapacity" id="dbD-zr-y0h"/>
+                            </levelIndicator>
                         </subviews>
                     </view>
                     <connections>
                         <outlet property="PopoverMessage" destination="WIt-gd-k2k" id="Xql-Ev-hot"/>
                         <outlet property="popoverMsg" destination="WIt-gd-k2k" id="Cw0-AT-5P0"/>
                         <outlet property="timeOut" destination="b0Z-hq-o4v" id="GEw-My-aS4"/>
-                        <outlet property="versonLabel" destination="OK5-xk-IL3" id="KSN-5o-2aZ"/>
+                        <outlet property="timeUpProgress" destination="vRg-Gf-jAJ" id="Scm-cW-qy0"/>
                     </connections>
                 </viewController>
                 <customObject id="MWO-Vt-bhx" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -855,6 +926,9 @@ Gw
                         <windowCollectionBehavior key="collectionBehavior" fullScreenNone="YES" fullScreenDisallowsTiling="YES"/>
                         <rect key="contentRect" x="374" y="300" width="275" height="170"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1366" height="745"/>
+                        <connections>
+                            <outlet property="delegate" destination="2OA-do-y1F" id="PRD-f8-j9r"/>
+                        </connections>
                     </window>
                     <connections>
                         <segue destination="rf0-H7-rAl" kind="relationship" relationship="window.shadowedContentViewController" id="q9J-HD-b8x"/>
@@ -862,7 +936,7 @@ Gw
                 </windowController>
                 <customObject id="KRQ-qi-Qdw" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="586.5" y="110"/>
+            <point key="canvasLocation" x="507" y="49"/>
         </scene>
         <!--Restart View Controller-->
         <scene sceneID="5VX-Bi-EU3">
@@ -870,9 +944,9 @@ Gw
                 <viewController storyboardIdentifier="restartViewController" showSeguePresentationStyle="single" id="rf0-H7-rAl" customClass="RestartViewController" customModule="TimeUp" sceneMemberID="viewController">
                     <view key="view" id="7Vn-1G-22V">
                         <rect key="frame" x="0.0" y="0.0" width="419" height="130"/>
-                        <autoresizingMask key="autoresizingMask"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Yma-d3-s21">
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Yma-d3-s21">
                                 <rect key="frame" x="123" y="91" width="278" height="19"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Please restart your computer now." id="qav-Cg-f6R">
@@ -881,7 +955,7 @@ Gw
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CWe-ad-jzp">
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CWe-ad-jzp">
                                 <rect key="frame" x="123" y="49" width="278" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
                                 <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="If you do nothing, the computer will restart automatically in 2:30" id="HPB-OK-NhI">
@@ -916,7 +990,7 @@ Gw
                                 </connections>
                             </button>
                             <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4gg-s3-duL">
-                                <rect key="frame" x="20" y="24" width="85" height="83"/>
+                                <rect key="frame" x="10" y="20" width="100" height="100"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="TimeUpIcon" id="pbY-lD-vbj"/>
                             </imageView>
@@ -930,7 +1004,7 @@ Gw
                 </viewController>
                 <customObject id="lJK-a5-vKQ" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="587" y="365"/>
+            <point key="canvasLocation" x="653" y="334"/>
         </scene>
     </scenes>
     <resources>

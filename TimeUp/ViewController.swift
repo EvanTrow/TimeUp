@@ -16,23 +16,18 @@ class ViewController: NSViewController, NSApplicationDelegate {
     var AppDelegate: AppDelegate?
     var RestartViewController: RestartViewController?
     // set menu bar text length
-    let statusItem = NSStatusBar.system().statusItem(withLength: -1)
+    let statusItem = NSStatusBar.system.statusItem(withLength: -1)
     
-    @IBOutlet weak var versonLabel: NSTextField!
     @IBOutlet weak var popoverMsg: NSTextField!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // start TimeUp
         uptime()
         start()
         
-        popoverMsg.stringValue = Preferences.popoverMessage
-        
-        //show version
-        if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-            versonLabel.stringValue = "Version " + version + " | TrowLink 2017"
-        }
+        popoverMsg.stringValue = UserDefaults.standard.string(forKey: "popoverMessage")!
     }
     
     override var representedObject: Any? {
@@ -41,19 +36,9 @@ class ViewController: NSViewController, NSApplicationDelegate {
         }
     }
     
-    // show app info in "?" btn click
-    @IBAction func showInfo(_ sender: Any) {
-        NSSound(named: "Morse")?.play()
-        if (versonLabel.isHidden == false){
-            versonLabel.isHidden = true
-        } else {
-            versonLabel.isHidden = false
-        }
-    }
-    
     // show restart window
     func showRestart(){
-        self.performSegue(withIdentifier: "restartSegue", sender: self)
+        self.performSegue(withIdentifier: NSStoryboardSegue.Identifier(rawValue: "restartSegue"), sender: self)
     }
     
     // start timers in background task
@@ -64,32 +49,34 @@ class ViewController: NSViewController, NSApplicationDelegate {
             DispatchQueue.main.async {
                 //print("This is run on the main queue, after the previous code in outer block")
                 
+                // setup timers in seperate threads
                 self.uptime()
-                _ = Timer.scheduledTimer(timeInterval: TimeInterval(Preferences.timerInterval), target: self, selector: #selector(self.uptime), userInfo: nil, repeats: true)
+                _ = Timer.scheduledTimer(timeInterval: TimeInterval(UserDefaults.standard.integer(forKey: "timerInterval")), target: self, selector: #selector(self.uptime), userInfo: nil, repeats: true)
                 
-                _ = Timer.scheduledTimer(timeInterval: TimeInterval(Preferences.timerInterval), target: self, selector: #selector(self.uptimeSevenDays), userInfo: nil, repeats: true)
+                _ = Timer.scheduledTimer(timeInterval: TimeInterval(UserDefaults.standard.integer(forKey: "timerInterval")), target: self, selector: #selector(self.uptimeSevenDays), userInfo: nil, repeats: true)
                 self.uptimeSevenDays()
                 
-                _ = Timer.scheduledTimer(timeInterval: TimeInterval(Preferences.timerInterval), target: self, selector: #selector(self.uptimeTenDays), userInfo: nil, repeats: true)
+                _ = Timer.scheduledTimer(timeInterval: TimeInterval(UserDefaults.standard.integer(forKey: "timerInterval")), target: self, selector: #selector(self.uptimeTenDays), userInfo: nil, repeats: true)
                 self.uptimeTenDays()
                 
-                _ = Timer.scheduledTimer(timeInterval: TimeInterval(Preferences.timerInterval), target: self, selector: #selector(self.uptimeFourteenDays), userInfo: nil, repeats: true)
+                _ = Timer.scheduledTimer(timeInterval: TimeInterval(UserDefaults.standard.integer(forKey: "timerInterval")), target: self, selector: #selector(self.uptimeFourteenDays), userInfo: nil, repeats: true)
                 self.uptimeFourteenDays()
                 
-                _ = Timer.scheduledTimer(timeInterval: TimeInterval(Preferences.timerInterval), target: self, selector: #selector(self.uptimeTwentyOneDays), userInfo: nil, repeats: true)
+                _ = Timer.scheduledTimer(timeInterval: TimeInterval(UserDefaults.standard.integer(forKey: "timerInterval")), target: self, selector: #selector(self.uptimeTwentyOneDays), userInfo: nil, repeats: true)
                 self.uptimeTwentyOneDays()
                 
-                _ = Timer.scheduledTimer(timeInterval: TimeInterval(Preferences.timerInterval), target: self, selector: #selector(self.databaseUpdate), userInfo: nil, repeats: true)
+                _ = Timer.scheduledTimer(timeInterval: TimeInterval(UserDefaults.standard.integer(forKey: "timerInterval")), target: self, selector: #selector(self.databaseUpdate), userInfo: nil, repeats: true)
                 self.databaseUpdate()
             }
         }
     }
 
-    // uptime text
+    // uptime output text
     @IBOutlet weak var timeOut: NSTextField!
+    @IBOutlet weak var timeUpProgress: NSLevelIndicator!
     
     // show time up in popover
-    func uptime(){
+    @objc func uptime(){
         
         //debug -------------------------------------------------------------------
         //print(Preferences.databaseUploadEnabled)
@@ -97,85 +84,134 @@ class ViewController: NSViewController, NSApplicationDelegate {
         
         
         let uptime = getUpTime(no1: 0)
-        // convert sec to day, hrs, mins
+        // convert seconds to day, hrs, mins
         let days = String((uptime / 86400)) + " days "
         let hours = String((uptime % 86400) / 3600) + " hrs "
         let minutes = String((uptime % 3600) / 60) + " min"
         
-        // show computer uptime
+        // show computer uptime and progress bar
         timeOut.stringValue = days + hours + minutes
+        timeUpProgress.doubleValue = ((Double(uptime) / 1814400) * 100)
     }
     
     //more than 7 days every 6 hrs
-    static var lastCheckSevenDays = NSDate() //get time when app started for timer
-    func uptimeSevenDays() {
-        let elapsedTime = NSDate().timeIntervalSince(ViewController.lastCheckSevenDays as Date)
+    var lastCheckSevenDays = NSDate() //get time when app started for timer
+    var fistRunSevenDays = false
+    @objc func uptimeSevenDays() {
+        let elapsedTime = NSDate().timeIntervalSince(lastCheckSevenDays as Date)
         
-        if (elapsedTime>=Double(Preferences.firstInterval)){ // if time is more that 6hrs show notification
-            ViewController.lastCheckSevenDays = NSDate() // record time again
+        if (elapsedTime>=Double(UserDefaults.standard.integer(forKey: "firstInterval"))){ // if time is more that 6hrs show notification
+            lastCheckSevenDays = NSDate() // record time again
             //convert seconds to days
             let daysSeven = getUpTime(no1: 0) / 86400
             // if days over limit show restart
-            if (daysSeven >= Preferences.firstLow && Preferences.firstHigh < 10){
-                restartProcessCheck(array: Preferences.blacklistApps)
+            if (daysSeven >= UserDefaults.standard.integer(forKey: "firstLow") && UserDefaults.standard.integer(forKey: "firstHigh") < 10){
+                restartProcessCheck(array: UserDefaults.standard.stringArray(forKey: "blacklistApps") ?? [String]())
             }
+            print("debug: 7 main")
         }
-        
-    }
-    //more than 10 days every 3 hrs
-    static var lastCheckTenDays = NSDate() //get time when app started for timer
-    func uptimeTenDays() {
-        let elapsedTime = NSDate().timeIntervalSince(ViewController.lastCheckTenDays as Date)
-        
-        if (elapsedTime>=Double(Preferences.secondInterval)){ // if time is more that 6hrs show notification
-            ViewController.lastCheckTenDays = NSDate() // record time again
-            //convert seconds to days
+        if (fistRunSevenDays==false){
+            lastCheckSevenDays = NSDate() // record time again
             let daysSeven = getUpTime(no1: 0) / 86400
             // if days over limit show restart
-            if (daysSeven >= Preferences.secondLow && daysSeven < Preferences.secondHigh){
-                restartProcessCheck(array: Preferences.blacklistApps)
+            if (daysSeven >= UserDefaults.standard.integer(forKey: "firstLow") && UserDefaults.standard.integer(forKey: "firstHigh") < 10){
+                restartProcessCheck(array: UserDefaults.standard.stringArray(forKey: "blacklistApps") ?? [String]())
             }
-        }
-        
-    }
-    //more than 14 days every 1 hr
-    static var lastCheckFourteenDays = NSDate() //get time when app started for timer
-    func uptimeFourteenDays() {
-        let elapsedTime = NSDate().timeIntervalSince(ViewController.lastCheckFourteenDays as Date)
-        
-        if (elapsedTime>=Double(Preferences.thirdInterval)){ // if time is more that 6hrs show notification
-            ViewController.lastCheckFourteenDays = NSDate() // record time again
-            //convert seconds to days
-            let daysSeven = getUpTime(no1: 0) / 86400
-            // if days over limit show restart
-            if (daysSeven >= Preferences.thirdLow && daysSeven < Preferences.thirdHigh){
-                restartProcessCheck(array: Preferences.blacklistApps)
-            }
-        }
-        
-        
-    }
-    //more than 21 days every 5 min
-    static var lastCheckTwentyOneDays = NSDate() //get time when app started for timer
-    func uptimeTwentyOneDays() {
-        let elapsedTime = NSDate().timeIntervalSince(ViewController.lastCheckTwentyOneDays as Date)
-        
-        if (elapsedTime>=Double(Preferences.forthInterval)){ // if time is more that 6hrs show notification
-            ViewController.lastCheckTwentyOneDays = NSDate() // record time again
-            //convert seconds to days
-            let daysSeven = getUpTime(no1: 0) / 86400
-            // if days over limit show restart
-            if (daysSeven >= Preferences.forthHigh){
-                restartProcessCheck(array: Preferences.blacklistApps)
-            }
+            fistRunSevenDays = true
+            print("debug: 7 first")
         }
     }
     
+    //more than 10 days every 3 hrs
+    var lastCheckTenDays = NSDate() //get time when app started for timer
+    var fistRunTenDays = false
+    @objc func uptimeTenDays() {
+        let elapsedTime = NSDate().timeIntervalSince(lastCheckTenDays as Date)
+        
+        if (elapsedTime>=Double(UserDefaults.standard.integer(forKey: "secondInterval"))){ // if time is more that 6hrs show notification
+            lastCheckTenDays = NSDate() // record time again
+            //convert seconds to days
+            let daysSeven = getUpTime(no1: 0) / 86400
+            // if days over limit show restart
+            if (daysSeven >= UserDefaults.standard.integer(forKey: "secondLow") && daysSeven < UserDefaults.standard.integer(forKey: "secondHigh")){
+                restartProcessCheck(array: UserDefaults.standard.stringArray(forKey: "blacklistApps") ?? [String]())
+            }
+            print("debug: 10 main")
+        }
+        if (fistRunTenDays==false){
+            lastCheckTenDays = NSDate() // record time again
+            let daysSeven = getUpTime(no1: 0) / 86400
+            // if days over limit show restart
+            if (daysSeven >= UserDefaults.standard.integer(forKey: "secondLow") && daysSeven < UserDefaults.standard.integer(forKey: "secondHigh")){
+                restartProcessCheck(array: UserDefaults.standard.stringArray(forKey: "blacklistApps") ?? [String]())
+            }
+            fistRunTenDays = true
+            print("debug: 10 first")
+        }
+    }
+    
+    //more than 14 days every 1 hr
+    var lastCheckFourteenDays = NSDate() //get time when app started for timer
+    var fistRunFourteenDays = false
+    @objc func uptimeFourteenDays() {
+        let elapsedTime = NSDate().timeIntervalSince(lastCheckFourteenDays as Date)
+        
+        if (elapsedTime>=Double(UserDefaults.standard.integer(forKey: "thirdInterval"))){ // if time is more that 6hrs show notification
+            lastCheckFourteenDays = NSDate() // record time again
+            //convert seconds to days
+            let daysSeven = getUpTime(no1: 0) / 86400
+            // if days over limit show restart
+            if (daysSeven >= UserDefaults.standard.integer(forKey: "thirdLow") && daysSeven < UserDefaults.standard.integer(forKey: "thirdHigh")){
+                restartProcessCheck(array: UserDefaults.standard.stringArray(forKey: "blacklistApps") ?? [String]())
+            }
+            print("debug: 14 main")
+        }
+        if (fistRunFourteenDays==false){
+            lastCheckFourteenDays = NSDate() // record time again
+            let daysSeven = getUpTime(no1: 0) / 86400
+            // if days over limit show restart
+            if (daysSeven >= UserDefaults.standard.integer(forKey: "thirdLow") && daysSeven < UserDefaults.standard.integer(forKey: "thirdHigh")){
+                restartProcessCheck(array: UserDefaults.standard.stringArray(forKey: "blacklistApps") ?? [String]())
+            }
+            fistRunFourteenDays = true
+            print("debug: 14 fisrt")
+        }
+    }
+    
+    //more than 21 days every 5 min
+    var lastCheckTwentyOneDays = NSDate() //get time when app started for timer
+    var fistRunTwentyOneDays = false
+    @objc func uptimeTwentyOneDays() {
+        let elapsedTime = NSDate().timeIntervalSince(lastCheckTwentyOneDays as Date)
+        
+        if (elapsedTime>=Double(UserDefaults.standard.integer(forKey: "forthInterval"))){ // if time is more that 6hrs show notification
+            lastCheckTwentyOneDays = NSDate() // record time again
+            //convert seconds to days
+            let daysSeven = getUpTime(no1: 0) / 86400
+            // if days over limit show restart
+            if (daysSeven >= UserDefaults.standard.integer(forKey: "forthHigh")){
+                restartProcessCheck(array: UserDefaults.standard.stringArray(forKey: "blacklistApps") ?? [String]())
+            }
+            print("debug: 21 main")
+        }
+        if (fistRunTwentyOneDays==false){
+            lastCheckTwentyOneDays = NSDate() // record time again
+            let daysSeven = getUpTime(no1: 0) / 86400
+            // if days over limit show restart
+            if (daysSeven >= UserDefaults.standard.integer(forKey: "forthHigh")){
+                restartProcessCheck(array: UserDefaults.standard.stringArray(forKey: "blacklistApps") ?? [String]())
+            }
+            fistRunTwentyOneDays = true
+            print("debug: 21 first")
+        }
+    }
+    
+    // if blacklist applications are active don't restart
     func restartProcessCheck(array: Array<String>) {
         
         var restartCheck = true
         
-        let runningApplications = NSWorkspace.shared().runningApplications
+        let runningApplications = NSWorkspace.shared.runningApplications
         
         for eachApplication in runningApplications {
             if let applicationName = eachApplication.localizedName {
@@ -188,6 +224,8 @@ class ViewController: NSViewController, NSApplicationDelegate {
             }
         }
         //print(restartCheck)
+        
+        // show restart dialog
         if(restartCheck){
             showRestart()
         }
@@ -205,20 +243,37 @@ class ViewController: NSViewController, NSApplicationDelegate {
             uptime = now - boottime.tv_sec
         }
         return uptime
+        //return = 32423423423
     }
     
-    // sends computer timeup to firebase realtime database for analitics/tracking - https://firebase.google.com
-    static var lastCheckDatabaseUpdate = NSDate() //get time when app started for timer
-    func databaseUpdate(){
-        if(Preferences.databaseUploadEnabled==true){
-            let elapsedTime = NSDate().timeIntervalSince(ViewController.lastCheckDatabaseUpdate as Date)
-            if (elapsedTime>=Double(Preferences.databaseUploadInterval)){ // if time is more that 2hrs update database days
-                ViewController.lastCheckTwentyOneDays = NSDate() // record time again
-                let currentHost = Host.current().localizedName ?? ""
+    // sends computer timeup to database for analitics/tracking via curl command to Firebase Realtime Database - http://timeup.xyz
+    var lastCheckDatabaseUpdate = NSDate() //get time when app started for timer
+    var fistRunDatabaseUpdate = false
+    @objc func databaseUpdate(){
+        if(UserDefaults.standard.bool(forKey: "databaseUploadEnabled")==true){
+            let elapsedTime = NSDate().timeIntervalSince(lastCheckDatabaseUpdate as Date)
+            if (elapsedTime>=Double(UserDefaults.standard.integer(forKey: "databaseUploadInterval"))){ // if time is more that 2hrs update database days
+                lastCheckDatabaseUpdate = NSDate() // record time again
+                let currentHost = Host.current().localizedName!
+                let timeup = String(getUpTime(no1: 0))
                 let timeNow = String(Date().timeIntervalSince1970)
-                let data = "{\"timeup\": \""+String(getUpTime(no1: 0))+"\",\"lastUpdate\": \""+timeNow+"\"}"
-                _ = shell(launchPath: "/usr/bin/curl", arguments: ["curl", "-X", "PUT" ,"-d" ,data , "https://timeup-9ddea.firebaseio.com/computers/"+currentHost+".json"]) // runs a curl put command to update database
-                //print(output)
+                
+                let data = "{\"computerName\": \""+currentHost+"\",\"timeup\": \""+timeup+"\",\"lastUpdate\": \""+timeNow+"\"}"
+                let output = shell(launchPath: "/usr/bin/env", arguments: ["curl", "-X", "PUT" ,"-d" ,data , UserDefaults.standard.string(forKey: "databaseURL")!+currentHost+".json"]) // runs a curl put command to update database
+                print("debug: curl -  "+output)
+                print("debug: upload main - "+data)
+            }
+            if (UserDefaults.standard.bool(forKey: "databaseUploadEnabled")==true && fistRunDatabaseUpdate==false){
+                lastCheckDatabaseUpdate = NSDate() // record time again
+                let currentHost = Host.current().localizedName!
+                let timeup = String(getUpTime(no1: 0))
+                let timeNow = String(Date().timeIntervalSince1970)
+                
+                let data = "{\"computerName\": \""+currentHost+"\",\"timeup\": \""+timeup+"\",\"lastUpdate\": \""+timeNow+"\"}"
+                let output = shell(launchPath: "/usr/bin/env", arguments: ["curl", "-X", "PUT" ,"-d" ,data , UserDefaults.standard.string(forKey: "databaseURL")!+currentHost+".json"]) // runs a curl put command to update database
+                print("debug: curl -  "+output)
+                fistRunDatabaseUpdate = true
+                print("debug: upload first - "+data)
             }
         }
     }
@@ -239,7 +294,7 @@ class ViewController: NSViewController, NSApplicationDelegate {
         // remove the trailing new-line char
         if output_from_command.characters.count > 0 {
             let lastIndex = output_from_command.index(before: output_from_command.endIndex)
-            return output_from_command[output_from_command.startIndex ..< lastIndex]
+            return String(output_from_command[output_from_command.startIndex ..< lastIndex])
         }
         return output_from_command
     }

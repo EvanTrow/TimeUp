@@ -2,8 +2,8 @@
 //  RestartViewController.swift
 //  TimeUp
 //
-//  Created by 18 Evan I. Trowbridge on 3/28/17.
-//  Copyright © 2017 Evan I. Trowbridge. All rights reserved.
+//  Created by Evan Trowbridge on 1/4/17.
+//  Copyright © 2017 TrowLink. All rights reserved.
 //
 
 import Cocoa
@@ -14,7 +14,7 @@ class RestartViewController: NSViewController, NSApplicationDelegate {
     
     // starts timer and sets delay to 2:30mins
     var timer = Timer()
-    var counter = Preferences.restartTimer - 1
+    var counter = UserDefaults.standard.integer(forKey: "restartTimer") - 1
     
     // cancel restart btn
     @IBOutlet weak var restartCancelButton: NSButton!
@@ -24,7 +24,7 @@ class RestartViewController: NSViewController, NSApplicationDelegate {
         // Do any additional setup after loading the view.
         
         //play sound when window opens
-        NSSound(named: "Funk")?.play()
+        NSSound(named: NSSound.Name(rawValue: "Funk"))?.play()
         
         timer.invalidate() // just in case this button is tapped multiple times
         
@@ -46,22 +46,20 @@ class RestartViewController: NSViewController, NSApplicationDelegate {
         let daysUp = uptime / 86400
         
         // disables cancel btn if days are more than or equal to 21 days
-        if(daysUp>=Preferences.restartCancelLimit){
+        if(daysUp>=UserDefaults.standard.integer(forKey: "restartCancelLimit")){
             restartCancelButton.isEnabled = false
         }
     }
     
     // btn to restart now
     @IBAction func restartButton(_ sender: Any) {
-        let source = "tell application \"System Events\" to restart"
-        let script = NSAppleScript(source: source)
-        script?.executeAndReturnError(nil)
+        restartNow()
     }
     
     // cancel btn and reset timer
     @IBAction func closeRestart(_ sender: NSButton) {
         timer.invalidate()
-        counter = Preferences.restartTimer - 1
+        counter = UserDefaults.standard.integer(forKey: "restartTimer") - 1
         self.view.window?.close()
         
     }
@@ -75,8 +73,8 @@ class RestartViewController: NSViewController, NSApplicationDelegate {
     @IBOutlet weak var timerString: NSTextField!
     
     // shows and counts timer.
-    func timerUpdate(){
-        self.view.window?.level = Int(CGWindowLevelForKey(.floatingWindow))
+    @objc func timerUpdate(){
+        self.view.window?.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
         
         // convert sec to mins
         let minutes = Int(counter) / 60 % 60
@@ -86,7 +84,7 @@ class RestartViewController: NSViewController, NSApplicationDelegate {
         
         // set timer text if time is more that -1
         if(counter > -1){
-            timerString.stringValue = Preferences.restartMsg + timer
+            timerString.stringValue = UserDefaults.standard.string(forKey: "restartMsg")! + timer
         }
         
         // counts down
@@ -94,9 +92,13 @@ class RestartViewController: NSViewController, NSApplicationDelegate {
         
         // auto restart at end of timer.
         if(counter == -2){
-            let source = "tell application \"System Events\" to restart"
-            let script = NSAppleScript(source: source)
-            script?.executeAndReturnError(nil)
+            restartNow()
         }
+    }
+    func restartNow(){
+        let source = "tell application \"Google Chrome\" to quit saving no \n tell application \"Microsoft Word\" to quit saving no \n tell application \"Microsoft Excel\" to quit saving no \n tell application \"Microsoft PowerPoint\" to quit saving no \n tell application \"SketchUp\" to quit saving no \n tell application \"System Events\" to restart"
+        // \n tell application \"System Events\" to restart
+        let script = NSAppleScript(source: source)
+        script?.executeAndReturnError(nil)
     }
 }

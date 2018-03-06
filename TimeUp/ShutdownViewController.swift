@@ -2,8 +2,8 @@
 //  ShutdownViewController.swift
 //  TimeUp
 //
-//  Created by 18 Evan I. Trowbridge on 3/28/17.
-//  Copyright © 2017 Evan I. Trowbridge. All rights reserved.
+//  Created by Evan Trowbridge on 1/4/17.
+//  Copyright © 2017 TrowLink. All rights reserved.
 //
 
 import Cocoa
@@ -15,14 +15,14 @@ class ShutdownViewController: NSViewController, NSApplicationDelegate {
     
     // starts timer and sets delay to 2:30mins
     var timer = Timer()
-    var counter = Preferences.shutdownTimer - 1
+    var counter = UserDefaults.standard.integer(forKey: "shutdownTimer") - 1
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
         // play sound when window opens
-        NSSound(named: "Funk")?.play()
+        NSSound(named: NSSound.Name(rawValue: "Funk"))?.play()
         
         timer.invalidate() // just in case this button is tapped multiple times
         
@@ -41,7 +41,7 @@ class ShutdownViewController: NSViewController, NSApplicationDelegate {
     // cancel btn and reset timer
     @IBAction func closeShutdown(_ sender: Any) {
         timer.invalidate()
-        counter = Preferences.shutdownTimer - 1
+        counter = UserDefaults.standard.integer(forKey: "shutdownTimer") - 1
         self.view.window?.close()
     }
     
@@ -55,7 +55,7 @@ class ShutdownViewController: NSViewController, NSApplicationDelegate {
     
     // shows and counts timer.
     func timerUpdate(){
-        self.view.window?.level = Int(CGWindowLevelForKey(.floatingWindow))
+        self.view.window?.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
         
         // convert sec to mins
         let minutes = Int(counter) / 60 % 60
@@ -65,7 +65,7 @@ class ShutdownViewController: NSViewController, NSApplicationDelegate {
         
         // set timer text if time is more that -1
         if(counter > -1){
-            timerString.stringValue = Preferences.shutdownMsg + timer
+            timerString.stringValue = UserDefaults.standard.string(forKey: "shutdownMsg")! + timer
         }
         
         // counts down
