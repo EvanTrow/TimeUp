@@ -113,7 +113,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     // set defualt prefs
     func SetPrefs(){
-        if(UserDefaults.standard.object(forKey: "timerInterval") != nil){
+        
+        // file path for plist
+        let path = "/Library/Preferences/com.trowlink.TimeUp.plist"
+        //let path = "/Users/trowbrev18/Desktop/com.trowlink.TimeUp.plist"
+        
+        let selfServiceFileManager = FileManager.default
+        if !selfServiceFileManager.fileExists(atPath: path) {
             UserDefaults.standard.set(5, forKey: "timerInterval")
             
             UserDefaults.standard.set(7, forKey: "firstLow")
@@ -131,11 +137,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             UserDefaults.standard.set(21, forKey: "forthHigh")
             UserDefaults.standard.set(300, forKey: "forthInterval")
             
-            UserDefaults.standard.set(7200, forKey: "databaseUploadInterval")
-            UserDefaults.standard.set(true, forKey: "databaseUploadEnabled")
-            UserDefaults.standard.set("https://timeup-2ee0a.firebaseio.com/computers/", forKey: "databaseURL")
-            UserDefaults.standard.set("timeup", forKey: "databaseDomain")
-            
             UserDefaults.standard.set(150, forKey: "restartTimer")
             UserDefaults.standard.set(150, forKey: "shutdownTimer")
             UserDefaults.standard.set(21, forKey: "restartCancelLimit")
@@ -149,18 +150,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             UserDefaults.standard.set("Restarting your computer regularly keeps your applications up to date and your computer running smoothly.", forKey: "popoverMessage")
             
             UserDefaults.standard.set([String](), forKey: "blacklistApps")
-        }
-
-        // file path for plist
-        let path = "/Library/Preferences/com.trowlink.TimeUp.plist"
-        //let path = "/Users/trowbrev18/Desktop/com.trowlink.TimeUp.plist"
-        
-        //var pathToApplication: String = Bundle.main.bundlePath
-
-        
-        let selfServiceFileManager = FileManager.default
-        
-        if selfServiceFileManager.fileExists(atPath: path) {
+            
+            // show error message if no plist found in path specified above
+            print("debug: plist error - "+String(UserDefaults.standard.bool(forKey: "dontShowNotFoundError")))
+            if(UserDefaults.standard.bool(forKey: "dontShowNotFoundError") == false) {
+                let alert = NSAlert()
+                alert.messageText = "Error"
+                alert.informativeText = "TimeUp configuration not found at: " + path + " TimeUp will use default configuration."
+                alert.addButton(withTitle: "OK")
+                alert.addButton(withTitle: "Don't show this message again.")
+                let result = alert.runModal()
+                switch(result) {
+                case NSApplication.ModalResponse.alertFirstButtonReturn:
+                    print("OK")
+                case NSApplication.ModalResponse.alertSecondButtonReturn:
+                    UserDefaults.standard.set(true, forKey: "dontShowNotFoundError")
+                    print("don't show again")
+                default:
+                    break
+                }
+            }
+        } else {
             let dictRoot = NSDictionary(contentsOfFile: path)
             if let dict = dictRoot {
                 //print(dict)
@@ -180,11 +190,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 
                 UserDefaults.standard.set(dict["forthHigh"] as! Int, forKey: "forthHigh")
                 UserDefaults.standard.set(dict["forthInterval"] as! Int, forKey: "forthInterval")
-                    
-                UserDefaults.standard.set(dict["databaseUploadInterval"] as! Int, forKey: "databaseUploadInterval")
-                UserDefaults.standard.set(dict["databaseUploadEnabled"] as! Bool, forKey: "databaseUploadEnabled")
-                UserDefaults.standard.set(dict["databaseURL"] as! String, forKey: "databaseURL")
-                UserDefaults.standard.set(dict["databaseDomain"] as! String, forKey: "databaseDomain")
                 
                 UserDefaults.standard.set(dict["restartTimer"] as! Int, forKey: "restartTimer")
                 UserDefaults.standard.set(dict["shutdownTimer"] as! Int, forKey: "shutdownTimer")
@@ -199,26 +204,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 UserDefaults.standard.set(dict["popoverMsg"] as! String, forKey: "popoverMsg")
                 
                 UserDefaults.standard.set(dict["blacklistApps"] as! Array<String>, forKey: "blacklistApps")
-            }
-        } else {
-            // show error message if no plist found in path specified above
-            print("debug: plist error - "+String(UserDefaults.standard.bool(forKey: "dontShowNotFoundError")))
-            if(UserDefaults.standard.bool(forKey: "dontShowNotFoundError") == false) {
-                let alert = NSAlert()
-                alert.messageText = "Error"
-                alert.informativeText = "TimeUp configuration not found at: " + path + " TimeUp will use default configuration."
-                alert.addButton(withTitle: "OK")
-                alert.addButton(withTitle: "Don't show this message again.")
-                let result = alert.runModal()
-                switch(result) {
-                case NSApplication.ModalResponse.alertFirstButtonReturn:
-                    print("OK")
-                case NSApplication.ModalResponse.alertSecondButtonReturn:
-                    UserDefaults.standard.set(true, forKey: "dontShowNotFoundError")
-                    print("don't show again")
-                default:
-                    break
-                }
             }
         }
     }

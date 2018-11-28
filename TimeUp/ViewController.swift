@@ -64,9 +64,7 @@ class ViewController: NSViewController, NSApplicationDelegate {
                 
                 _ = Timer.scheduledTimer(timeInterval: TimeInterval(UserDefaults.standard.integer(forKey: "timerInterval")), target: self, selector: #selector(self.uptimeTwentyOneDays), userInfo: nil, repeats: true)
                 self.uptimeTwentyOneDays()
-                
-                _ = Timer.scheduledTimer(timeInterval: TimeInterval(UserDefaults.standard.integer(forKey: "timerInterval")), target: self, selector: #selector(self.databaseUpdate), userInfo: nil, repeats: true)
-                self.databaseUpdate()
+
             }
         }
     }
@@ -245,57 +243,5 @@ class ViewController: NSViewController, NSApplicationDelegate {
         return uptime
         //return = 32423423423
     }
-    
-    // sends computer timeup to database for analitics/tracking via curl command to Firebase Realtime Database - http://timeup.xyz
-    var lastCheckDatabaseUpdate = NSDate() //get time when app started for timer
-    var fistRunDatabaseUpdate = false
-    @objc func databaseUpdate(){
-        if(UserDefaults.standard.bool(forKey: "databaseUploadEnabled")==true){
-            let elapsedTime = NSDate().timeIntervalSince(lastCheckDatabaseUpdate as Date)
-            if (elapsedTime>=Double(UserDefaults.standard.integer(forKey: "databaseUploadInterval"))){ // if time is more that 2hrs update database days
-                lastCheckDatabaseUpdate = NSDate() // record time again
-                let currentHost = Host.current().localizedName!
-                let timeup = String(getUpTime(no1: 0))
-                let timeNow = String(Date().timeIntervalSince1970)
-                
-                let data = "{\"computerName\": \""+currentHost+"\",\"timeup\": \""+timeup+"\",\"lastUpdate\": \""+timeNow+"\"}"
-                let output = shell(launchPath: "/usr/bin/env", arguments: ["curl", "-X", "PUT" ,"-d" ,data , UserDefaults.standard.string(forKey: "databaseURL")!+currentHost+".json"]) // runs a curl put command to update database
-                print("debug: curl -  "+output)
-                print("debug: upload main - "+data)
-            }
-            if (UserDefaults.standard.bool(forKey: "databaseUploadEnabled")==true && fistRunDatabaseUpdate==false){
-                lastCheckDatabaseUpdate = NSDate() // record time again
-                let currentHost = Host.current().localizedName!
-                let timeup = String(getUpTime(no1: 0))
-                let timeNow = String(Date().timeIntervalSince1970)
-                
-                let data = "{\"computerName\": \""+currentHost+"\",\"timeup\": \""+timeup+"\",\"lastUpdate\": \""+timeNow+"\"}"
-                let output = shell(launchPath: "/usr/bin/env", arguments: ["curl", "-X", "PUT" ,"-d" ,data , UserDefaults.standard.string(forKey: "databaseURL")!+currentHost+".json"]) // runs a curl put command to update database
-                print("debug: curl -  "+output)
-                fistRunDatabaseUpdate = true
-                print("debug: upload first - "+data)
-            }
-        }
-    }
-    
-    // runs terminal commands to send curl put request
-    func shell(launchPath: String, arguments: [String]) -> String {
-        
-        let process = Process()
-        process.launchPath = launchPath
-        process.arguments = arguments
-        
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.launch()
-        
-        let output_from_command = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: String.Encoding.utf8)!
-        
-        // remove the trailing new-line char
-        if output_from_command.characters.count > 0 {
-            let lastIndex = output_from_command.index(before: output_from_command.endIndex)
-            return String(output_from_command[output_from_command.startIndex ..< lastIndex])
-        }
-        return output_from_command
-    }
+
 }
