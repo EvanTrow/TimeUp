@@ -16,7 +16,7 @@ class ViewController: NSViewController, NSApplicationDelegate {
     var AppDelegate: AppDelegate?
     var RestartViewController: RestartViewController?
     // set menu bar text length
-    let statusItem = NSStatusBar.system.statusItem(withLength: -1)
+    let statusItem = NSStatusBar.system().statusItem(withLength: -1)
     
     @IBOutlet weak var popoverMsg: NSTextField!
     
@@ -27,7 +27,7 @@ class ViewController: NSViewController, NSApplicationDelegate {
         uptime()
         start()
         
-        popoverMsg.stringValue = UserDefaults.standard.string(forKey: "popoverMessage")!
+        popoverMsg.stringValue = UserDefaults.standard.string(forKey: "popoverMsg")!
     }
     
     override var representedObject: Any? {
@@ -38,7 +38,7 @@ class ViewController: NSViewController, NSApplicationDelegate {
     
     // show restart window
     func showRestart(){
-        self.performSegue(withIdentifier: NSStoryboardSegue.Identifier(rawValue: "restartSegue"), sender: self)
+        self.performSegue(withIdentifier: NSStoryboardSegue.Identifier("restartSegue"), sender: self)
     }
     
     // start timers in background task
@@ -64,11 +64,18 @@ class ViewController: NSViewController, NSApplicationDelegate {
                 
                 _ = Timer.scheduledTimer(timeInterval: TimeInterval(UserDefaults.standard.integer(forKey: "timerInterval")), target: self, selector: #selector(self.uptimeTwentyOneDays), userInfo: nil, repeats: true)
                 self.uptimeTwentyOneDays()
-
+                
+                
+                //testing
+                //_ = Timer.scheduledTimer(timeInterval: 20, target: self, selector: #selector(self.test), userInfo: nil, repeats: false)
             }
         }
     }
 
+    @objc func test(){
+        restartProcessCheck(array: UserDefaults.standard.stringArray(forKey: "blacklistApps") ?? [String]())
+    }
+    
     // uptime output text
     @IBOutlet weak var timeOut: NSTextField!
     @IBOutlet weak var timeUpProgress: NSLevelIndicator!
@@ -78,7 +85,7 @@ class ViewController: NSViewController, NSApplicationDelegate {
         
         //debug -------------------------------------------------------------------
         //print(Preferences.databaseUploadEnabled)
-        //restartProcessCheck(array: Preferences.blacklistApps)
+        //restartProcessCheck(array: UserDefaults.standard.stringArray(forKey: "blacklistApps") ?? [String]())
         
         
         let uptime = getUpTime(no1: 0)
@@ -207,9 +214,9 @@ class ViewController: NSViewController, NSApplicationDelegate {
     // if blacklist applications are active don't restart
     func restartProcessCheck(array: Array<String>) {
         
-        var restartCheck = true
+        var restartCheck = UserDefaults.standard.bool(forKey: "enableNotifications")
         
-        let runningApplications = NSWorkspace.shared.runningApplications
+        let runningApplications = NSWorkspace.shared().runningApplications
         
         for eachApplication in runningApplications {
             if let applicationName = eachApplication.localizedName {
@@ -217,15 +224,44 @@ class ViewController: NSViewController, NSApplicationDelegate {
                 if array.contains(applicationName) {
                     //print(applicationName+" is open don't restart")
                     restartCheck = false
+                    print("no restart: blacklist app open")
                 }
                 //print("application is \(applicationName) & pid is \(eachApplication.processIdentifier)")
             }
         }
         //print(restartCheck)
         
+        // inactivity check
+        var lastEvent:CFTimeInterval = 0
+        lastEvent = CGEventSource.secondsSinceLastEventType(CGEventSourceStateID.hidSystemState, eventType: CGEventType(rawValue: ~0)!)
+        
+        // if inactive for 30 sec
+        //print(lastEvent)
+        if(Int(lastEvent) > UserDefaults.standard.integer(forKey: "inactiveTime") && UserDefaults.standard.bool(forKey: "enableInactivityDetection")){
+            //print("no restart: inactive")
+            if(UserDefaults.standard.bool(forKey: "enableNotifications")){
+                checkForActivity()
+            }
+            restartCheck = false
+        }
+        
         // show restart dialog
         if(restartCheck){
             showRestart()
+        }
+    }
+    
+    @objc func checkForActivity(){
+        
+        //print("activity check")
+        // inactivity check
+        var lastEvent:CFTimeInterval = 0
+        lastEvent = CGEventSource.secondsSinceLastEventType(CGEventSourceStateID.hidSystemState, eventType: CGEventType(rawValue: ~0)!)
+        if(Int(lastEvent) < UserDefaults.standard.integer(forKey: "inactiveTime")){
+            showRestart()
+        } else {
+            //print("retry: activity")
+            _ = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(self.checkForActivity), userInfo: nil, repeats: false)
         }
     }
     
@@ -241,7 +277,7 @@ class ViewController: NSViewController, NSApplicationDelegate {
             uptime = now - boottime.tv_sec
         }
         return uptime
-        //return = 32423423423
+        //return 1700000 // TESTING
     }
 
 }

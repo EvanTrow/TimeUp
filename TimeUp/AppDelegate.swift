@@ -12,7 +12,7 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate {
     
     // setup popover / view
-    let statusItem = NSStatusBar.system.statusItem(withLength: -1)
+    let statusItem = NSStatusBar.system().statusItem(withLength: -1)
     let popover = NSPopover()
     var eventMonitor: EventMonitor?
     var ViewController: ViewController?
@@ -22,17 +22,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // sets defualt prefences
         SetPrefs()
-
+    }
+    
+    func afterSetPrefs() {
+        
         // setup menu icon
         if let button = statusItem.button {
-            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageGreen"))
+            button.image = NSImage(named: NSImage.Name("StatusBarButtonImageGreen"))
             button.imagePosition = .imageLeft
             button.title = "0" + UserDefaults.standard.string(forKey: "daysUnit")!
             button.action = #selector(AppDelegate.togglePopover(_:))
         }
         
         // setup view controller
-        let mainViewController = NSStoryboard(name: NSStoryboard.Name(rawValue: "Main"), bundle: nil).instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(rawValue: "ViewControllerId")) as! ViewController
+        let mainViewController = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil).instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("ViewControllerId")) as! ViewController
         
         // setup popover
         popover.contentViewController = mainViewController
@@ -90,10 +93,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // set menu icon color by amount of days
         if (daysIcon >= UserDefaults.standard.integer(forKey: "orangeIconDays")) {
-            statusItem.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageOrange"))
+            statusItem.image = NSImage(named: NSImage.Name("StatusBarButtonImageOrange"))
         }
         if (daysIcon >= UserDefaults.standard.integer(forKey: "redIconDays")) {
-            statusItem.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageRed"))
+            statusItem.image = NSImage(named: NSImage.Name("StatusBarButtonImageRed"))
         }
     }
     
@@ -114,12 +117,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // set defualt prefs
     func SetPrefs(){
         
+        // reset prefs
+        resetDefaults()
+        
         // file path for plist
-        let path = "/Library/Preferences/com.trowlink.TimeUp.plist"
-        //let path = "/Users/trowbrev18/Desktop/com.trowlink.TimeUp.plist"
+        let path = Bundle.main.paths(forResourcesOfType: "plist", inDirectory: nil)[0]
+        //let path = "/Users/superx/Desktop/com.trowlink.TimeUp.plist"
         
         let selfServiceFileManager = FileManager.default
         if !selfServiceFileManager.fileExists(atPath: path) {
+            
             UserDefaults.standard.set(5, forKey: "timerInterval")
             
             UserDefaults.standard.set(7, forKey: "firstLow")
@@ -140,6 +147,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             UserDefaults.standard.set(150, forKey: "restartTimer")
             UserDefaults.standard.set(150, forKey: "shutdownTimer")
             UserDefaults.standard.set(21, forKey: "restartCancelLimit")
+            UserDefaults.standard.set(true, forKey: "enableInactivityDetection")
+            UserDefaults.standard.set(30, forKey: "inactiveTime")
+            UserDefaults.standard.set(true, forKey: "enableNotifications")
+
             
             UserDefaults.standard.set(5, forKey: "orangeIconDays")
             UserDefaults.standard.set(10, forKey: "redIconDays")
@@ -161,9 +172,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 alert.addButton(withTitle: "Don't show this message again.")
                 let result = alert.runModal()
                 switch(result) {
-                case NSApplication.ModalResponse.alertFirstButtonReturn:
+                case NSAlertFirstButtonReturn: NSApplication.ModalResponse.self;
                     print("OK")
-                case NSApplication.ModalResponse.alertSecondButtonReturn:
+                case NSAlertSecondButtonReturn: NSApplication.ModalResponse.self;
                     UserDefaults.standard.set(true, forKey: "dontShowNotFoundError")
                     print("don't show again")
                 default:
@@ -193,7 +204,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 
                 UserDefaults.standard.set(dict["restartTimer"] as! Int, forKey: "restartTimer")
                 UserDefaults.standard.set(dict["shutdownTimer"] as! Int, forKey: "shutdownTimer")
-                UserDefaults.standard.set(dict["restartCancelLimit"] as! Int, forKey: "restartCancelLimit")
+                UserDefaults.standard.set(dict["enableInactivityDetection"] as! Bool, forKey: "enableInactivityDetection")
+                UserDefaults.standard.set(dict["inactiveTime"] as! Int, forKey: "inactiveTime")
+                UserDefaults.standard.set(dict["enableNotifications"] as! Bool, forKey: "enableNotifications")
 
                 UserDefaults.standard.set(dict["orangeIconDays"] as! Int, forKey: "orangeIconDays")
                 UserDefaults.standard.set(dict["redIconDays"] as! Int, forKey: "redIconDays")
@@ -206,6 +219,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 UserDefaults.standard.set(dict["blacklistApps"] as! Array<String>, forKey: "blacklistApps")
             }
         }
+        afterSetPrefs()
     }
+    func resetDefaults() {
+        let defaults = UserDefaults.standard
+        let dictionary = defaults.dictionaryRepresentation()
+        dictionary.keys.forEach { key in
+            defaults.removeObject(forKey: key)
+        }
+    }
+
 }
 

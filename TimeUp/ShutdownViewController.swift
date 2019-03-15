@@ -22,7 +22,7 @@ class ShutdownViewController: NSViewController, NSApplicationDelegate {
         // Do any additional setup after loading the view.
         
         // play sound when window opens
-        NSSound(named: NSSound.Name(rawValue: "Funk"))?.play()
+        NSSound(named: NSSound.Name("Funk"))?.play()
         
         timer.invalidate() // just in case this button is tapped multiple times
         
@@ -55,7 +55,7 @@ class ShutdownViewController: NSViewController, NSApplicationDelegate {
     
     // shows and counts timer.
     func timerUpdate(){
-        self.view.window?.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
+        self.view.window?.level = NSWindow.Level(Int(CGWindowLevelForKey(.floatingWindow)))
         
         // convert sec to mins
         let minutes = Int(counter) / 60 % 60
